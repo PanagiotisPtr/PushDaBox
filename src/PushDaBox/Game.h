@@ -17,7 +17,7 @@
 #include "States/StartState.h"
 #include "Screens/GameScreen.h"
 #include "Screens/StartScreen.h"
-#include "Components/Button.h"
+#include "Screens/LoadingScreen.h"
 
 namespace PushDaBox {
 
@@ -30,39 +30,27 @@ public:
          size_t sWidth, size_t sHeight)
     : gameState(std::make_unique<LoadingState>()), levels(gameLevelsFileLocation),
       screenWidth(sWidth), screenHeight(sHeight) {
-          this->gameState = std::make_unique<StartState>();
           ScreenPointer startScreen = std::make_unique<StartScreen>(this, playerDataFileLocation);
+          ScreenPointer loadingScreen = std::make_unique<LoadingScreen>(this);
 
           this->screens.insert({GameScreens::START, std::move(startScreen)});
+          this->screens.insert({GameScreens::LOADING, std::move(loadingScreen)});
+          this->gameState = std::make_unique<StartState>();
       }
 	~Game() {}
 
 	void virtSetupBackgroundBuffer() override {
-        fillBackground(0x000000);
-        if (this->gameState->currentScreen() == GameScreens::LOADING) {
-            return;
-        }
-
-        SimpleImage image(loadImage("assets/Background.png", false));
-	    image.renderImageWithMask(this->getBackgroundSurface(), 0, 0, 0, 0, image.getHeight(), image.getWidth());
+        int currentScreen = this->gameState->currentScreen();
+        this->screens[currentScreen]->initialiseBackground();
     }
 
     void virtDrawStringsOnTop() override {
         int currentScreen = this->gameState->currentScreen();
-        if (currentScreen == GameScreens::LOADING) {
-            this->drawForegroundString(this->screenWidth/2 - 75, this->screenHeight/2,
-                                 "Loading...", 0xff0000, NULL);
-            return;
-        } else {
-            this->screens[currentScreen]->drawStringsOnTop();
-        }
+        this->screens[currentScreen]->drawStringsOnTop();
     }
 
     int virtInitialiseObjects() override {
         int currentScreen = this->gameState->currentScreen();
-        if (this->screens.find(currentScreen) == std::end(this->screens)) {
-            return 0;
-        }
         int initialisedObjects = this->screens[this->gameState->currentScreen()]->initialiseObjects();
         this->setAllObjectsVisible(true);
 
@@ -81,7 +69,7 @@ public:
             std::cout << "Loading!" << std::endl;
             return;
         }
-        
+
         int currentScreen = this->gameState->currentScreen();
         this->screens[currentScreen]->keyboardHandler(keyCode);
     }

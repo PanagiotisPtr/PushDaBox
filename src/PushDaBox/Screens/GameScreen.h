@@ -12,6 +12,7 @@ public:
     virtual int initialiseObjects() = 0;
     virtual void drawStringsOnTop() = 0;
     virtual void keyboardHandler(int keyCode) = 0;
+    virtual void initialiseBackground() = 0;
 protected:
     BaseEngine* getEngine() { return this->engine; }
 private:

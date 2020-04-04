@@ -26,6 +26,12 @@ public:
 
         this->playerName = playerData["player"]["name"].getValue();
     }
+
+    void initialiseBackground() override {
+        SimpleImage image(this->getEngine()->loadImage("assets/Background.png", false));
+	    image.renderImageWithMask(this->getEngine()->getBackgroundSurface(), 0, 0, 0, 0, image.getHeight(), image.getWidth());
+    }
+    
     int initialiseObjects() override {
         int windowWidth = this->getEngine()->getWindowWidth();
         int windowHeight = this->getEngine()->getWindowHeight();
