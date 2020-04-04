@@ -10,14 +10,15 @@ namespace PushDaBox {
 
 class StartScreen : public GameScreen {
 public:
-    StartScreen(BaseEngine* e, std::string playerDataFileLocation)
-    : GameScreen(e), playerName("Guest"), changingName(false), dataFileLocation(playerDataFileLocation) {
+    StartScreen(BaseEngine* e, StateTransition t, std::string playerDataFileLocation)
+    : GameScreen(e, t), playerName("Guest"), changingName(false), dataFileLocation(playerDataFileLocation) {
         std::string str;
         {
             std::ifstream f(dataFileLocation);
             std::stringstream ss;
             ss << f.rdbuf();
             str = ss.str();
+            f.close();
         }
         str.erase(remove_if(std::begin(str), std::end(str), isspace), std::end(str));
 
@@ -28,6 +29,7 @@ public:
     }
 
     void initialiseBackground() override {
+        this->getEngine()->fillBackground(0x000000);
         SimpleImage image(this->getEngine()->loadImage("assets/Background.png", false));
 	    image.renderImageWithMask(this->getEngine()->getBackgroundSurface(), 0, 0, 0, 0, image.getHeight(), image.getWidth());
     }
@@ -46,8 +48,8 @@ public:
             });
 
         Button* highscoreButton = new Button(this->getEngine(), "assets/buttons/HighscoreListButton.png",
-            windowWidth/2 - 150, windowHeight/2 + 100, [](){
-                std::cout << "Highscore!" << std::endl;
+            windowWidth/2 - 150, windowHeight/2 + 100, [&](){
+                this->stateTransition(std::make_unique<HighscoreState>());
             });
 
         Button* exitGameButton = new Button(this->getEngine(), "assets/buttons/ExitGameButton.png",

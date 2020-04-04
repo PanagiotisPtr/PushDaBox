@@ -4,11 +4,12 @@
 namespace PushDaBox {
 
 enum GameScreens {
-    START,   // Start Screen
-    LOADING, // Frozen. Performing I/O
-    RUNNING, // Game is running
-    PAUSED,  // Game is paused
-    EXIT     // Exiting. Cleaning up
+    START,     // Start Screen
+    LOADING,   // Frozen. Performing I/O
+    RUNNING,   // Game is running
+    PAUSED,    // Game is paused
+    HIGHSCORE, // Highscore screen
+    EXIT       // Exiting. Cleaning up
 };
 
 class BaseState {

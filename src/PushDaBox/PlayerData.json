@@ -1,8 +1,1 @@
-{
-	"player": {
-		"name": "guest"
-	},
-	"progress": {
-		"level": 1
-	}
-}
+{"progress":{"level":1},"player":{"name":"pano"}}
