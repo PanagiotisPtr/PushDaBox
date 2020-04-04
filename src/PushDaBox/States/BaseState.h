@@ -4,6 +4,7 @@
 namespace PushDaBox {
 
 enum GameScreens {
+    START,   // Start Screen
     LOADING, // Frozen. Performing I/O
     RUNNING, // Game is running
     PAUSED,  // Game is paused

@@ -58,10 +58,6 @@ public:
                 ss >> map;
 
                 levels.push_back({width, height, map});
-                std::cout << "Level: " << levelIndexStr << std::endl;
-                std::cout << "Width: " << levels.back().width << std::endl;
-                std::cout << "Height: " << levels.back().height << std::endl;
-                std::cout << "Map: " << levels.back().map << std::endl << std::endl;
             } catch (const std::exception& e) {
                 break;
             }

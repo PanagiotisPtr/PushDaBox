@@ -6,7 +6,7 @@
 #include "PushDaBox/Game.h"
 
 // These are passed to initialise to determine the window size
-const int BaseScreenWidth = 1300;
+const int BaseScreenWidth = 800;
 const int BaseScreenHeight = 800;
 
 
@@ -16,11 +16,16 @@ int doProgram(int argc, char *argv[])
 { 
 	int iResult = 0;
 	if (argc < 2) {
-		std::cout << "Missing levels filename. Need to be passed in as the 2nd argument to the program"
+		std::cout << "Missing levels file locaiton. Need to be passed in as the 2nd argument to the program"
 				  << std::endl;
 		return 1;
 	}
-	PushDaBox::Game oMain(argv[1]);
+	if (argc < 3) {
+		std::cout << "Missing player data file location. Need to be passed in as the 3rd argument to the program"
+				  << std::endl;
+		return 1;
+	}
+	PushDaBox::Game oMain(argv[1], argv[2], BaseScreenWidth, BaseScreenHeight);
 
 	char buf[1024];
 	sprintf(buf, "C++ Coursework Framework Program : Size %d x %d", BaseScreenWidth, BaseScreenHeight);
