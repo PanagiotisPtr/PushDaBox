@@ -64,7 +64,7 @@ protected:
     std::string readString(const std::string& str, size_t& pos) {
         std::string rv = "";
         if (str[pos] == '"') pos++;
-        while (str[pos] != '"') rv.push_back(str[pos++]);
+        while (str[pos] != '"' && str[pos] != ',') rv.push_back(str[pos++]);
         if (str[pos] == '"') pos++;
         
         return rv;

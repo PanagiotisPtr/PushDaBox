@@ -9,7 +9,7 @@
 #include <thread>
 
 #include "../BaseEngine.h"
-#include "../JsonLib/JsonLib.h"
+#include "GameLevels.h"
 #include "States/BaseState.h"
 #include "States/LoadingState.h"
 #include "States/RunningState.h"
@@ -20,7 +20,8 @@ class Game : public BaseEngine {
 public:
     using StatePointer = std::unique_ptr<BaseState>;
 
-    Game() : gameState(std::make_unique<LoadingState>()) {}
+    Game(std::string gameLevelsFilename)
+    : gameState(std::make_unique<LoadingState>()), levels(gameLevelsFilename) {}
 	~Game() {}
 
 	void virtSetupBackgroundBuffer() override {
@@ -50,7 +51,7 @@ public:
         std::cout << "Key Down!" << std::endl;
     }
 private:
-    JsonLib::JsonObject obj;
+    GameLevels levels;
     StatePointer gameState;
 };
 
