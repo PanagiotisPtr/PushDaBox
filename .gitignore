@@ -3,4 +3,6 @@ SDL2_App
 CMakeCache.txt
 .vscode/*
 .DS_Store
-
+PushDaBox/PlayerData.json
+PushDaBox/GameLevels.json
+PushDaBox/Highscores.json
