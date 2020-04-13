@@ -22,6 +22,7 @@
 #include "Screens/StartScreen.h"
 #include "Screens/LoadingScreen.h"
 #include "Screens/HighscoreScreen.h"
+#include "Screens/PlayScreen.h"
 
 namespace PushDaBox {
 
@@ -49,10 +50,12 @@ public:
         ScreenPointer startScreen = std::make_unique<StartScreen>(this, transitionFunction, playerDataFileLocation);
         ScreenPointer loadingScreen = std::make_unique<LoadingScreen>(this, transitionFunction);
         ScreenPointer highscoreScreen = std::make_unique<HighscoreScreen>(this, transitionFunction, highscoreFileLocation);
+        ScreenPointer playScreen = std::make_unique<PlayScreen>(this, transitionFunction, levels.getLevel(3));
 
         this->screens.insert({GameScreens::START, std::move(startScreen)});
         this->screens.insert({GameScreens::LOADING, std::move(loadingScreen)});
         this->screens.insert({GameScreens::HIGHSCORE, std::move(highscoreScreen)});
+        this->screens.insert({GameScreens::RUNNING, std::move(playScreen)});
 
         this->gameState = std::make_unique<LoadingState>();
     }

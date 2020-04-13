@@ -21,9 +21,11 @@ public:
 
     int initialiseObjects() override {
         std::thread([&](){
-            std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             this->stateTransition(std::make_unique<StartState>());
         }).detach();
+
+        return 0;
     }
 
     void drawStringsOnTop() override {

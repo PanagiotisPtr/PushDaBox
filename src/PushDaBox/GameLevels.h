@@ -35,7 +35,7 @@ public:
         str.erase(remove_if(std::begin(str), std::end(str), isspace), std::end(str));
 
         size_t pos = 0;
-        json.deserialise(str, pos);
+        this->json.deserialise(str, pos);
 
         size_t levelIndex = 1;
         std::string levelIndexStr;
@@ -49,19 +49,23 @@ public:
                 ss >> levelIndexStr;
                 ss.clear();
 
-                ss << json[levelIndexStr]["width"].getValue() << " ";
-                ss << json[levelIndexStr]["height"].getValue() << " ";
-                ss << json[levelIndexStr]["map"].getValue();
+                ss << this->json[levelIndexStr]["width"].getValue() << " ";
+                ss << this->json[levelIndexStr]["height"].getValue() << " ";
+                ss << this->json[levelIndexStr]["map"].getValue();
 
                 ss >> width;
                 ss >> height;
                 ss >> map;
 
-                levels.push_back({width, height, map});
+                this->levels.push_back({width, height, map});
             } catch (const std::exception& e) {
                 break;
             }
         }
+    }
+
+    Level getLevel(int level) {
+        return this->levels[level-1];
     }
 private:
     JsonLib::JsonObject json;

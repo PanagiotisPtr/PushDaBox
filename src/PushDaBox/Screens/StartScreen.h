@@ -1,7 +1,11 @@
 #ifndef PUSHDABOX_STARTSCREEN_H
 #define PUSHDABOX_STARTSCREEN_H
 
+#include <fstream>
+
 #include "../../BaseEngine.h"
+#include "../States/HighscoreState.h"
+#include "../States/RunningState.h"
 #include "../../JsonLib/JsonLib.h"
 #include "../Components/Button.h"
 #include "GameScreen.h"
@@ -38,13 +42,13 @@ public:
         int windowWidth = this->getEngine()->getWindowWidth();
         int windowHeight = this->getEngine()->getWindowHeight();
         Button* startGameButton = new Button(this->getEngine(), "assets/buttons/StartGameButton.png",
-            windowWidth/2 - 150, windowHeight/2 - 100, [](){
-                std::cout << "Start Game!" << std::endl;
+            windowWidth/2 - 150, windowHeight/2 - 100, [&](){
+                this->stateTransition(std::make_unique<RunningState>());
             });
         
         Button* loadGameButton = new Button(this->getEngine(), "assets/buttons/LoadGameButton.png",
-            windowWidth/2 - 150, windowHeight/2, [](){
-                std::cout << "Load Game!" << std::endl;
+            windowWidth/2 - 150, windowHeight/2, [&](){
+                this->stateTransition(std::make_unique<RunningState>());
             });
 
         Button* highscoreButton = new Button(this->getEngine(), "assets/buttons/HighscoreListButton.png",
@@ -108,7 +112,6 @@ public:
         this->getEngine()->redrawDisplay();
     }
 private:
-    BaseEngine engine;
     std::string playerName;
     std::string dataFileLocation;
     JsonLib::JsonObject playerData;
