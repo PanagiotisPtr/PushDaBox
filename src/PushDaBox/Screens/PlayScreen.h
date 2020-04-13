@@ -9,6 +9,7 @@
 #include "../GameLevels.h"
 #include "../../JsonLib/JsonLib.h"
 #include "../Components/GameGrid.h"
+#include "../Components/Player.h"
 #include "../States/StartState.h"
 #include "GameScreen.h"
 
@@ -35,8 +36,6 @@ public:
 
             if (this->level.map[i] == '#') {
                 this->grid.setMapValue(col, row, 0xff0000);
-            } else if (this->level.map[i] == 'P') {
-                this->grid.setMapValue(col, row, 0x0000ff);
             } else if (this->level.map[i] == 'S') {
                 this->grid.setMapValue(col, row, 0xffff00);
             } else if (this->level.map[i] == 'E') {
@@ -54,7 +53,30 @@ public:
     }
     
     int initialiseObjects() override {
-        return 0;
+        int playerPosition = this->getPlayerPosition();
+        int playerRow = playerPosition/(this->level.width);
+        int playerCol = playerPosition%(this->level.width);
+
+        std::cout << playerRow << std::endl;
+        std::cout << playerCol << std::endl;
+
+        int windowWidth = this->getEngine()->getWindowWidth();  
+        int windowHeight = this->getEngine()->getWindowHeight();
+
+        int blockWidth = this->grid.getTileWidth();
+        int blockHeight = this->grid.getTileHeight();
+
+        Player* player = new Player(this->getEngine(), blockWidth,
+            blockHeight, playerCol * blockWidth + blockWidth/2,
+            100 + playerRow * blockHeight + blockHeight/2, &this->grid);
+        
+        this->getEngine()->drawableObjectsChanged();
+        this->getEngine()->destroyOldObjects(true);
+        this->getEngine()->createObjectArray(1);
+
+        this->getEngine()->storeObjectInArray(0, player);
+
+        return 1;
     }
 
     void drawStringsOnTop() override {
@@ -92,6 +114,16 @@ private:
     int lives;
     int score;
     int levelNumber;
+
+    int getPlayerPosition() {
+        for (int i = 0; i < this->level.height * this->level.width; i++) {
+            if (this->level.map[i] == 'P') {
+                return i;
+            }
+        }
+
+        return -1; // error
+    }
 };
 
 } // namespace PushDaBox
