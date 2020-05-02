@@ -5,6 +5,7 @@
 
 #include "../../BaseEngine.h"
 #include "../States/HighscoreState.h"
+#include "../Screens/PlayScreen.h"
 #include "../States/RunningState.h"
 #include "../../JsonLib/JsonLib.h"
 #include "../Components/Button.h"
@@ -31,11 +32,19 @@ public:
         int windowHeight = this->getEngine()->getWindowHeight();
         Button* startGameButton = new Button(this->getEngine(), "assets/buttons/StartGameButton.png",
             windowWidth/2 - 150, windowHeight/2 - 100, [&](){
+                PlayScreen::CURRENT_LEVEL = 1;
+                PlayScreen::CURRENT_LIVES = PlayScreen::N_LIVES;
+                PlayScreen::CURRENT_SCORE = 0;
+                PlayScreen::NEEDS_RELOAD = true;
                 this->stateTransition(std::make_unique<RunningState>());
             });
         
         Button* loadGameButton = new Button(this->getEngine(), "assets/buttons/LoadGameButton.png",
             windowWidth/2 - 150, windowHeight/2, [&](){
+                PlayScreen::CURRENT_LEVEL = this->playerData.getPlayerLevel();
+                PlayScreen::CURRENT_LIVES = this->playerData.getPlayerLives();
+                PlayScreen::CURRENT_SCORE = this->playerData.getPlayerScore();
+                PlayScreen::NEEDS_RELOAD = true;
                 this->stateTransition(std::make_unique<RunningState>());
             });
 

@@ -53,7 +53,8 @@ public:
         ScreenPointer startScreen = std::make_unique<StartScreen>(this, transitionFunction, playerDataFileLocation);
         ScreenPointer loadingScreen = std::make_unique<LoadingScreen>(this, transitionFunction);
         ScreenPointer highscoreScreen = std::make_unique<HighscoreScreen>(this, transitionFunction, highscoreFileLocation);
-        ScreenPointer playScreen = std::make_unique<PlayScreen>(this, transitionFunction, gameLevelsFileLocation, highscoreFileLocation);
+        ScreenPointer playScreen = std::make_unique<PlayScreen>(this, transitionFunction, gameLevelsFileLocation,
+                                                                highscoreFileLocation, playerDataFileLocation);
         ScreenPointer gameOverScreen = std::make_unique<GameOverScreen>(this, transitionFunction);
         ScreenPointer victoryScreen = std::make_unique<VictoryScreen>(this, transitionFunction);
 

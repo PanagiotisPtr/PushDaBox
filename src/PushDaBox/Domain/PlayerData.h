@@ -22,6 +22,8 @@ public:
 
     int getPlayerLevel() { this->readPlayerData(); return this->playerLevel; }
 
+    int getPlayerLives() { this->readPlayerData(); return this->playerLives; }
+
     void setPlayerName(std::string newName) {
         this->playerName = newName;
         this->savePlayerData();
@@ -37,11 +39,17 @@ public:
         this->savePlayerData();
     }
 
+    void setPlayerLives(int newLives) {
+        this->playerLives = newLives;
+        this->savePlayerData();
+    }
+
 private:
     std::string playerDataFile;
     std::string playerName;
     int playerScore;
     int playerLevel;
+    int playerLives;
 
     void readPlayerData() {
         JsonLib::JsonObject playerData;
@@ -61,6 +69,7 @@ private:
         this->playerName = playerData["player"]["name"].getValue();
         this->playerScore = std::stoi(playerData["progress"]["score"].getValue());
         this->playerLevel = std::stoi(playerData["progress"]["level"].getValue());
+        this->playerLives = std::stoi(playerData["progress"]["lives"].getValue());
     }
 
     void savePlayerData() {
@@ -71,6 +80,7 @@ private:
         player.addValue("name", this->playerName);
         progress.addValue("level", this->playerLevel);
         progress.addValue("score", this->playerScore);
+        progress.addValue("lives", this->playerLives);
         playerData.addValue("player", player);
         playerData.addValue("progress", progress);
 

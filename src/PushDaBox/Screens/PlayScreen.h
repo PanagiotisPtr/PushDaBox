@@ -18,6 +18,7 @@
 #include "../States/VictoryState.h"
 
 #include "../Domain/Highscores.h"
+#include "../Domain/PlayerData.h"
 
 #include "GameScreen.h"
 
@@ -30,13 +31,16 @@ public:
     constexpr static int N_LIVES = 3;
 
     static int CURRENT_LEVEL;
+    static int CURRENT_LIVES;
+    static int CURRENT_SCORE;
+
+    static bool NEEDS_RELOAD;
 
     PlayScreen(BaseEngine* e, StateTransition t, std::string gameLevelsFileLocation,
-               std::string highscoreFileLocation, std::string pName = "test")
+               std::string highscoreFileLocation, std::string playerDataFileLocation)
     : GameScreen(e, t), levels(gameLevelsFileLocation), level(levels.getLevel(PlayScreen::CURRENT_LEVEL)),
       grid(MAP_HEIGHT/level.height, MAP_WIDTH/level.width), levelNumber(PlayScreen::CURRENT_LEVEL),
-      score(0), lives(N_LIVES), highscores(highscoreFileLocation), playerName(pName) {
-          
+      score(0), lives(N_LIVES), highscores(highscoreFileLocation), playerData(playerDataFileLocation) {
     }
 
     void initialiseBackground() override {
@@ -61,6 +65,11 @@ public:
         this->grid.setTopLeftPositionOnScreen(0, 100);
 
         this->grid.drawAllTiles(this->getEngine(), this->getEngine()->getBackgroundSurface());
+        
+        if (PlayScreen::NEEDS_RELOAD) {
+            PlayScreen::NEEDS_RELOAD = false;
+            this->reload();
+        }
     }
     
     int initialiseObjects() override {
@@ -82,7 +91,7 @@ public:
             blockHeight, boxCol * blockWidth + blockWidth/2,
             100 + boxRow * blockHeight + blockHeight/2, &this->grid);
 
-        auto levelUp = [&](){ PlayScreen::CURRENT_LEVEL++; this->reload(); };
+        auto levelUp = [&](){ PlayScreen::CURRENT_SCORE += 100; PlayScreen::CURRENT_LEVEL++; this->reload(); };
 
         Player* player = new Player(this->getEngine(), blockWidth,
             blockHeight, playerCol * blockWidth + blockWidth/2,
@@ -107,7 +116,7 @@ public:
         this->getEngine()->drawForegroundString(20, 40,
             livesStr.str().c_str(), 0xffffff, this->getEngine()->getFont("Cornerstone Regular.ttf", 28));
 
-        for (int i = 0; i < this->lives; i++) asteriskStr << "*";
+        for (int i = 0; i < PlayScreen::CURRENT_LIVES; i++) asteriskStr << "*";
         this->getEngine()->drawForegroundString(120, 40,
             asteriskStr.str().c_str(), 0xffffff, this->getEngine()->getFont("Cornerstone Regular.ttf", 64));
 
@@ -115,25 +124,37 @@ public:
         this->getEngine()->drawForegroundString(windowWidth/2 - 75, 40,
             levelStr.str().c_str(), 0xffffff, this->getEngine()->getFont("Cornerstone Regular.ttf", 28));
 
-        scoreStr << "Score: " << this->score;
+        scoreStr << "Score: " << PlayScreen::CURRENT_SCORE;
         this->getEngine()->drawForegroundString(windowWidth - 225, 40,
             scoreStr.str().c_str(), 0xffffff, this->getEngine()->getFont("Cornerstone Regular.ttf", 28));
     }
 
     void keyboardHandler(int keyCode) override {
         switch (keyCode) {
-            case SDLK_ESCAPE:
+            case SDLK_ESCAPE: // exit
+                PlayScreen::CURRENT_LEVEL = 1;
+                PlayScreen::CURRENT_SCORE = 0;
+                PlayScreen::CURRENT_LIVES = PlayScreen::N_LIVES;
+                this->reload();
                 this->stateTransition(std::make_unique<StartState>());
-                this->highscores.addHighscore(this->playerName, this->score);
                 break;
-            case SDLK_r:
-                if (this->lives > 1) {
-                    this->lives--;
+            case SDLK_r: // reload level
+                if (PlayScreen::CURRENT_LIVES > 1) {
+                    PlayScreen::CURRENT_LIVES--;
                     this->reload();
                 } else {
+                    PlayScreen::CURRENT_LEVEL = 1;
+                    PlayScreen::CURRENT_SCORE = 0;
+                    PlayScreen::CURRENT_LIVES = PlayScreen::N_LIVES;
+                    this->reload();
                     this->stateTransition(std::make_unique<GameOverState>());
-                    this->highscores.addHighscore(this->playerName, this->score);
+                    this->highscores.addHighscore(this->playerData.getPlayerName(), PlayScreen::CURRENT_SCORE);
                 }
+                break;
+            case SDLK_p: // save game
+                this->playerData.setPlayerLevel(PlayScreen::CURRENT_LEVEL);
+                this->playerData.setPlayerScore(PlayScreen::CURRENT_SCORE);
+                this->playerData.setPlayerLives(PlayScreen::CURRENT_LIVES);
                 break;
         }
     }
@@ -142,9 +163,8 @@ public:
         if (this->levels.getNumberOfLevels() < PlayScreen::CURRENT_LEVEL) {
             PlayScreen::CURRENT_LEVEL = 1;
             this->stateTransition(std::make_unique<VictoryState>());
-            this->highscores.addHighscore(this->playerName, this->score);
+            this->highscores.addHighscore(this->playerData.getPlayerName(), PlayScreen::CURRENT_SCORE);
         } else {
-            this->score += 100;
             this->level = this->levels.getLevel(PlayScreen::CURRENT_LEVEL);
             this->grid = GameGrid(MAP_HEIGHT/level.height, MAP_WIDTH/level.width);
             this->levelNumber = PlayScreen::CURRENT_LEVEL;
@@ -156,7 +176,7 @@ private:
     Level level;
     GameGrid grid;
     Highscores highscores;
-    std::string playerName;
+    PlayerData playerData;
     int lives;
     int score;
     int levelNumber;
@@ -183,6 +203,10 @@ private:
 };
 
 int PlayScreen::CURRENT_LEVEL = 1;
+int PlayScreen::CURRENT_LIVES = PlayScreen::N_LIVES;
+int PlayScreen::CURRENT_SCORE = 0;
+
+bool PlayScreen::NEEDS_RELOAD = false;
 
 } // namespace PushDaBox
 
