@@ -5,6 +5,7 @@
 #include "../../TileManager.h"
 #include "../../BaseEngine.h"
 #include "../../CollisionDetection.h"
+#include "../../SimpleImage.h"
 
 #include <iostream>
 #include <functional>
@@ -18,10 +19,11 @@ public:
     Player(BaseEngine* e, int width, int height, int startX, int startY,
            TileManager* tm, DisplayableObject* b, LevelTransition transition)
     : DisplayableObject(e, width, height, false), tileManager(tm), box(b),
-      nextLevel(transition) {
+      nextLevel(transition), image(e->loadImage("assets/Player.png", false)) {
         this->m_iCurrentScreenX = startX;
         this->m_iCurrentScreenY = startY;
         e->notifyObjectsAboutKeys(true);
+        this->image = this->image.resizeTo(m_iDrawWidth, m_iDrawHeight);
     }
 
     void virtDraw() override {
@@ -31,6 +33,7 @@ public:
 			m_iCurrentScreenX + m_iDrawWidth / 2 - 1,
 			m_iCurrentScreenY + m_iDrawHeight / 2 - 1,
 			0x0000ff);
+        this->image.renderImage(getEngine()->getForegroundSurface(), 0, 0, m_iCurrentScreenX + m_iStartDrawPosX, m_iCurrentScreenY + m_iStartDrawPosY, m_iDrawWidth, m_iDrawHeight);
 	}
 
     void virtKeyDown(int keyCode) override {
@@ -100,6 +103,7 @@ private:
     TileManager* tileManager;
     DisplayableObject* box;
     LevelTransition nextLevel;
+    SimpleImage image;
 };
 
 } // namespace PushDaBox
