@@ -17,12 +17,15 @@
 #include "States/RunningState.h"
 #include "States/StartState.h"
 #include "States/HighscoreState.h"
+#include "States/GameOverState.h"
 
 #include "Screens/GameScreen.h"
 #include "Screens/StartScreen.h"
 #include "Screens/LoadingScreen.h"
 #include "Screens/HighscoreScreen.h"
 #include "Screens/PlayScreen.h"
+#include "Screens/GameOverScreen.h"
+#include "Screens/VictoryScreen.h"
 
 namespace PushDaBox {
 
@@ -34,7 +37,7 @@ public:
 
     Game(std::string gameLevelsFileLocation, std::string playerDataFileLocation,
          std::string highscoreFileLocation, size_t sWidth, size_t sHeight)
-    : gameState(std::make_unique<LoadingState>()), levels(gameLevelsFileLocation),
+    : gameState(std::make_unique<LoadingState>()),
       screenWidth(sWidth), screenHeight(sHeight) {
         StateTransition transitionFunction = [&](StatePointer&& sp) {
             this->gameState = std::move(sp);
@@ -50,12 +53,16 @@ public:
         ScreenPointer startScreen = std::make_unique<StartScreen>(this, transitionFunction, playerDataFileLocation);
         ScreenPointer loadingScreen = std::make_unique<LoadingScreen>(this, transitionFunction);
         ScreenPointer highscoreScreen = std::make_unique<HighscoreScreen>(this, transitionFunction, highscoreFileLocation);
-        ScreenPointer playScreen = std::make_unique<PlayScreen>(this, transitionFunction, levels.getLevel(3));
+        ScreenPointer playScreen = std::make_unique<PlayScreen>(this, transitionFunction, gameLevelsFileLocation);
+        ScreenPointer gameOverScreen = std::make_unique<GameOverScreen>(this, transitionFunction);
+        ScreenPointer victoryScreen = std::make_unique<VictoryScreen>(this, transitionFunction);
 
         this->screens.insert({GameScreens::START, std::move(startScreen)});
         this->screens.insert({GameScreens::LOADING, std::move(loadingScreen)});
         this->screens.insert({GameScreens::HIGHSCORE, std::move(highscoreScreen)});
         this->screens.insert({GameScreens::RUNNING, std::move(playScreen)});
+        this->screens.insert({GameScreens::GAMEOVER, std::move(gameOverScreen)});
+        this->screens.insert({GameScreens::VICTORY, std::move(victoryScreen)});
 
         this->gameState = std::make_unique<LoadingState>();
     }
@@ -96,7 +103,6 @@ public:
         this->screens[currentScreen]->keyboardHandler(keyCode);
     }
 private:
-    GameLevels levels;
     StatePointer gameState;
     std::unordered_map<int, ScreenPointer> screens;
     size_t screenWidth;

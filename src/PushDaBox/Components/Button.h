@@ -29,6 +29,6 @@ private:
     bool isLarge;
 };
 
-}
+} // namespace PushDaBox
 
 #endif

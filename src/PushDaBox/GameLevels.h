@@ -67,6 +67,10 @@ public:
     Level getLevel(int level) {
         return this->levels[level-1];
     }
+
+    size_t getNumberOfLevels() {
+        return levels.size();
+    }
 private:
     JsonLib::JsonObject json;
     std::vector<Level> levels;

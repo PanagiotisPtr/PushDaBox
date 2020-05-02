@@ -9,6 +9,8 @@ enum GameScreens {
     RUNNING,   // Game is running
     PAUSED,    // Game is paused
     HIGHSCORE, // Highscore screen
+    GAMEOVER,  // Game Over,
+    VICTORY,   // Game is won
     EXIT       // Exiting. Cleaning up
 };
 

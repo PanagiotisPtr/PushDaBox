@@ -10,7 +10,10 @@
 #include "../../JsonLib/JsonLib.h"
 #include "../Components/GameGrid.h"
 #include "../Components/Player.h"
+#include "../Components/Box.h"
 #include "../States/StartState.h"
+#include "../States/GameOverState.h"
+#include "../States/VictoryState.h"
 #include "GameScreen.h"
 
 namespace PushDaBox {
@@ -21,9 +24,12 @@ public:
     constexpr static int MAP_HEIGHT = 700;
     constexpr static int N_LIVES = 3;
 
-    PlayScreen(BaseEngine* e, StateTransition t, Level l)
-    : GameScreen(e, t), level(l), grid(MAP_HEIGHT/l.height, MAP_WIDTH/l.width),
-      levelNumber(5), score(8888), lives(N_LIVES) {
+    static int CURRENT_LEVEL;
+
+    PlayScreen(BaseEngine* e, StateTransition t, std::string gameLevelsFileLocation)
+    : GameScreen(e, t), levels(gameLevelsFileLocation), level(levels.getLevel(PlayScreen::CURRENT_LEVEL)),
+      grid(MAP_HEIGHT/level.height, MAP_WIDTH/level.width), levelNumber(PlayScreen::CURRENT_LEVEL), score(0), lives(N_LIVES) {
+          
     }
 
     void initialiseBackground() override {
@@ -36,8 +42,6 @@ public:
 
             if (this->level.map[i] == '#') {
                 this->grid.setMapValue(col, row, 0xff0000);
-            } else if (this->level.map[i] == 'S') {
-                this->grid.setMapValue(col, row, 0xffff00);
             } else if (this->level.map[i] == 'E') {
                 this->grid.setMapValue(col, row, 0xff00ff);
             } else if (this->level.map[i] == 'G') {
@@ -57,8 +61,9 @@ public:
         int playerRow = playerPosition/(this->level.width);
         int playerCol = playerPosition%(this->level.width);
 
-        std::cout << playerRow << std::endl;
-        std::cout << playerCol << std::endl;
+        int boxPosition = this->getBoxPosition();
+        int boxRow = boxPosition/(this->level.width);
+        int boxCol = boxPosition%(this->level.width);
 
         int windowWidth = this->getEngine()->getWindowWidth();  
         int windowHeight = this->getEngine()->getWindowHeight();
@@ -66,15 +71,22 @@ public:
         int blockWidth = this->grid.getTileWidth();
         int blockHeight = this->grid.getTileHeight();
 
+        Box* box = new Box(this->getEngine(), blockWidth,
+            blockHeight, boxCol * blockWidth + blockWidth/2,
+            100 + boxRow * blockHeight + blockHeight/2, &this->grid);
+
+        auto levelUp = [&](){ PlayScreen::CURRENT_LEVEL++; this->reload(); };
+
         Player* player = new Player(this->getEngine(), blockWidth,
             blockHeight, playerCol * blockWidth + blockWidth/2,
-            100 + playerRow * blockHeight + blockHeight/2, &this->grid);
+            100 + playerRow * blockHeight + blockHeight/2, &this->grid, box, levelUp);
         
         this->getEngine()->drawableObjectsChanged();
         this->getEngine()->destroyOldObjects(true);
-        this->getEngine()->createObjectArray(1);
+        this->getEngine()->createObjectArray(2);
 
         this->getEngine()->storeObjectInArray(0, player);
+        this->getEngine()->storeObjectInArray(1, box);
 
         return 1;
     }
@@ -106,11 +118,33 @@ public:
             case SDLK_ESCAPE:
                 this->stateTransition(std::make_unique<StartState>());
                 break;
+            case SDLK_r:
+                if (this->lives > 1) {
+                    this->lives--;
+                    this->reload();
+                } else {
+                    this->stateTransition(std::make_unique<GameOverState>());
+                }
+                break;
+        }
+    }
+
+    void reload() {
+        if (this->levels.getNumberOfLevels() < PlayScreen::CURRENT_LEVEL) {
+            PlayScreen::CURRENT_LEVEL = 1;
+            this->stateTransition(std::make_unique<VictoryState>());
+        } else {
+            this->score += 100;
+            this->level = this->levels.getLevel(PlayScreen::CURRENT_LEVEL);
+            this->grid = GameGrid(MAP_HEIGHT/level.height, MAP_WIDTH/level.width);
+            this->levelNumber = PlayScreen::CURRENT_LEVEL;
+            this->stateTransition(std::make_unique<RunningState>());
         }
     }
 private:
-    GameGrid grid;
+    GameLevels levels;
     Level level;
+    GameGrid grid;
     int lives;
     int score;
     int levelNumber;
@@ -124,7 +158,19 @@ private:
 
         return -1; // error
     }
+
+    int getBoxPosition() {
+        for (int i = 0; i < this->level.height * this->level.width; i++) {
+            if (this->level.map[i] == 'S') {
+                return i;
+            }
+        }
+
+        return -1; // error
+    }
 };
+
+int PlayScreen::CURRENT_LEVEL = 1;
 
 } // namespace PushDaBox
 

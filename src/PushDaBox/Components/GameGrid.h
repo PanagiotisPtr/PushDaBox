@@ -5,6 +5,8 @@
 
 #include "../../TileManager.h"
 
+namespace PushDaBox {
+
 class GameGrid : public TileManager {
 public:
 	GameGrid(int tileHeight, int tileWidth) : TileManager(tileHeight, tileWidth) {
@@ -22,5 +24,8 @@ public:
 			getMapValue(mx,my));
 	}
 };
+
+} // namespace PushDaBox
+
 
 #endif
