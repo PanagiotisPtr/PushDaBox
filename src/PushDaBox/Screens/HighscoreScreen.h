@@ -10,50 +10,14 @@
 #include "../States/StartState.h"
 #include "../Components/Button.h"
 #include "GameScreen.h"
+#include "../Domain/Highscores.h"
 
 namespace PushDaBox {
 
 class HighscoreScreen : public GameScreen {
 public:
     HighscoreScreen(BaseEngine* e, StateTransition t, std::string highscoreFileLocation)
-    : GameScreen(e, t) {
-        std::string str;
-        {
-            std::ifstream f(highscoreFileLocation);
-            std::stringstream ss;
-            ss << f.rdbuf();
-            str = ss.str();
-            f.close();
-        }
-        str.erase(remove_if(std::begin(str), std::end(str), isspace), std::end(str));
-
-        size_t pos = 0;
-        highscoreData.deserialise(str, pos);
-
-        size_t scoreIdx = 1;
-        std::string scoreIdxStr;
-        while (true) {
-            try {
-                size_t score;
-                std::string name;
-                std::stringstream ss;
-
-                ss << scoreIdx++;
-                ss >> scoreIdxStr;
-                ss.clear();
-
-                ss << highscoreData[scoreIdxStr]["name"].getValue() << " ";
-                ss << highscoreData[scoreIdxStr]["score"].getValue();
-
-                ss >> name;
-                ss >> score;
-
-                this->highscores.insert({score, name});
-            } catch (const std::exception& e) {
-                break;
-            }
-        }
-    }
+    : GameScreen(e, t), highscores(highscoreFileLocation) {}
 
     void initialiseBackground() override {
         this->getEngine()->fillBackground(0x000000);
@@ -81,21 +45,25 @@ public:
     void drawStringsOnTop() override {
         int windowWidth = this->getEngine()->getWindowWidth();
         int windowHeight = this->getEngine()->getWindowHeight();
-        int padding = 500;
+        int padding = 200;
         int offset = 0;
-        for (auto p : this->highscores) {
+
+        int count = 0;
+        auto highscoreMap = this->highscores.getHighscores();
+        for (auto it = highscoreMap.rbegin(); it != highscoreMap.rend(); it++) {
+            auto p = *it;
+            if (count++ >= 7) break;
             std::stringstream ss;
             ss << p.second << "        " << p.first;
             this->getEngine()->drawForegroundString(windowWidth/2 - 150, offset + padding,
                 ss.str().c_str(), 0xffffff, this->getEngine()->getFont("Cornerstone Regular.ttf", 28));
-            padding -= 60;
+            padding += 60;
         }
     }
 
     void keyboardHandler(int keyCode) override {}
 private:
-    std::map<int, std::string> highscores;
-    JsonLib::JsonObject highscoreData;
+    Highscores highscores;
 };
 
 } // namespace PushDaBox

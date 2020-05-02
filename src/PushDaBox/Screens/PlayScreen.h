@@ -6,14 +6,19 @@
 #include <memory>
 
 #include "../../BaseEngine.h"
-#include "../GameLevels.h"
+#include "../Domain/GameLevels.h"
 #include "../../JsonLib/JsonLib.h"
+
 #include "../Components/GameGrid.h"
 #include "../Components/Player.h"
 #include "../Components/Box.h"
+
 #include "../States/StartState.h"
 #include "../States/GameOverState.h"
 #include "../States/VictoryState.h"
+
+#include "../Domain/Highscores.h"
+
 #include "GameScreen.h"
 
 namespace PushDaBox {
@@ -26,9 +31,11 @@ public:
 
     static int CURRENT_LEVEL;
 
-    PlayScreen(BaseEngine* e, StateTransition t, std::string gameLevelsFileLocation)
+    PlayScreen(BaseEngine* e, StateTransition t, std::string gameLevelsFileLocation,
+               std::string highscoreFileLocation, std::string pName = "test")
     : GameScreen(e, t), levels(gameLevelsFileLocation), level(levels.getLevel(PlayScreen::CURRENT_LEVEL)),
-      grid(MAP_HEIGHT/level.height, MAP_WIDTH/level.width), levelNumber(PlayScreen::CURRENT_LEVEL), score(0), lives(N_LIVES) {
+      grid(MAP_HEIGHT/level.height, MAP_WIDTH/level.width), levelNumber(PlayScreen::CURRENT_LEVEL),
+      score(0), lives(N_LIVES), highscores(highscoreFileLocation), playerName(pName) {
           
     }
 
@@ -117,6 +124,7 @@ public:
         switch (keyCode) {
             case SDLK_ESCAPE:
                 this->stateTransition(std::make_unique<StartState>());
+                this->highscores.addHighscore(this->playerName, this->score);
                 break;
             case SDLK_r:
                 if (this->lives > 1) {
@@ -124,6 +132,7 @@ public:
                     this->reload();
                 } else {
                     this->stateTransition(std::make_unique<GameOverState>());
+                    this->highscores.addHighscore(this->playerName, this->score);
                 }
                 break;
         }
@@ -133,6 +142,7 @@ public:
         if (this->levels.getNumberOfLevels() < PlayScreen::CURRENT_LEVEL) {
             PlayScreen::CURRENT_LEVEL = 1;
             this->stateTransition(std::make_unique<VictoryState>());
+            this->highscores.addHighscore(this->playerName, this->score);
         } else {
             this->score += 100;
             this->level = this->levels.getLevel(PlayScreen::CURRENT_LEVEL);
@@ -145,6 +155,8 @@ private:
     GameLevels levels;
     Level level;
     GameGrid grid;
+    Highscores highscores;
+    std::string playerName;
     int lives;
     int score;
     int levelNumber;

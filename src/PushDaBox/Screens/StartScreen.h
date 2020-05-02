@@ -9,27 +9,15 @@
 #include "../../JsonLib/JsonLib.h"
 #include "../Components/Button.h"
 #include "GameScreen.h"
+#include "../Domain/PlayerData.h"
 
 namespace PushDaBox {
 
 class StartScreen : public GameScreen {
 public:
     StartScreen(BaseEngine* e, StateTransition t, std::string playerDataFileLocation)
-    : GameScreen(e, t), playerName("Guest"), changingName(false), dataFileLocation(playerDataFileLocation) {
-        std::string str;
-        {
-            std::ifstream f(dataFileLocation);
-            std::stringstream ss;
-            ss << f.rdbuf();
-            str = ss.str();
-            f.close();
-        }
-        str.erase(remove_if(std::begin(str), std::end(str), isspace), std::end(str));
-
-        size_t pos = 0;
-        playerData.deserialise(str, pos);
-
-        this->playerName = playerData["player"]["name"].getValue();
+    : GameScreen(e, t), playerData(playerDataFileLocation), changingName(false) {
+        this->playerName = this->playerData.getPlayerName();
     }
 
     void initialiseBackground() override {
@@ -106,24 +94,14 @@ public:
         }
         if (keyCode == SDLK_KP_ENTER || keyCode == 13) { // edge case for Macbook Keyboard
             this->changingName = false;
-            playerData["player"]["name"].setValue(this->playerName);
-            this->updatePlayerData();
+            this->playerData.setPlayerName(this->playerName);
         }
         this->getEngine()->redrawDisplay();
     }
 private:
+    PlayerData playerData;
     std::string playerName;
-    std::string dataFileLocation;
-    JsonLib::JsonObject playerData;
     bool changingName;
-
-    void updatePlayerData() {
-        std::string data = playerData.serialise();
-        std::ofstream f;
-        f.open(dataFileLocation, std::ofstream::out | std::ofstream::trunc);
-        f << data;
-        f.close();
-    }
 };
 
 } // namespace PushDaBox

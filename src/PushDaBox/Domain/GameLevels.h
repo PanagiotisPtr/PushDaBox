@@ -1,5 +1,5 @@
-#ifndef PUSHDABOX_GAMELEVELS_H
-#define PUSHDABOX_GAMELEVELS_H
+#ifndef PUSHDABOX_DOMAIN_GAMELEVELS_H
+#define PUSHDABOX_DOMAIN_GAMELEVELS_H
 
 #include <vector>
 #include <iostream>
@@ -9,7 +9,7 @@
 #include <cctype>
 #include <streambuf>
 
-#include "../JsonLib/JsonLib.h"
+#include "../../JsonLib/JsonLib.h"
 
 namespace PushDaBox {
 

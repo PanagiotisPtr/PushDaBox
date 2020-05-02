@@ -10,7 +10,7 @@
 #include <thread>
 
 #include "../BaseEngine.h"
-#include "GameLevels.h"
+#include "Domain/GameLevels.h"
 
 #include "States/BaseState.h"
 #include "States/LoadingState.h"
@@ -53,7 +53,7 @@ public:
         ScreenPointer startScreen = std::make_unique<StartScreen>(this, transitionFunction, playerDataFileLocation);
         ScreenPointer loadingScreen = std::make_unique<LoadingScreen>(this, transitionFunction);
         ScreenPointer highscoreScreen = std::make_unique<HighscoreScreen>(this, transitionFunction, highscoreFileLocation);
-        ScreenPointer playScreen = std::make_unique<PlayScreen>(this, transitionFunction, gameLevelsFileLocation);
+        ScreenPointer playScreen = std::make_unique<PlayScreen>(this, transitionFunction, gameLevelsFileLocation, highscoreFileLocation);
         ScreenPointer gameOverScreen = std::make_unique<GameOverScreen>(this, transitionFunction);
         ScreenPointer victoryScreen = std::make_unique<VictoryScreen>(this, transitionFunction);
 
