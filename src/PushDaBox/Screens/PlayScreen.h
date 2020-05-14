@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <memory>
+#include <cstdlib>
 
 #include "../../BaseEngine.h"
 #include "../Domain/GameLevels.h"
@@ -11,6 +12,7 @@
 
 #include "../Components/GameGrid.h"
 #include "../Components/Player.h"
+#include "../Components/Enemy.h"
 #include "../Components/Box.h"
 
 #include "../States/StartState.h"
@@ -40,7 +42,8 @@ public:
                std::string highscoreFileLocation, std::string playerDataFileLocation)
     : GameScreen(e, t), levels(gameLevelsFileLocation), level(levels.getLevel(PlayScreen::CURRENT_LEVEL)),
       grid(MAP_HEIGHT/level.height, MAP_WIDTH/level.width), levelNumber(PlayScreen::CURRENT_LEVEL),
-      score(0), lives(N_LIVES), highscores(highscoreFileLocation), playerData(playerDataFileLocation) {
+      score(0), lives(N_LIVES), highscores(highscoreFileLocation), playerData(playerDataFileLocation),
+        player(nullptr) {
     }
 
     void initialiseBackground() override {
@@ -93,7 +96,7 @@ public:
 
         auto levelUp = [&](){ PlayScreen::CURRENT_SCORE += 100; PlayScreen::CURRENT_LEVEL++; this->reload(); };
 
-        Player* player = new Player(this->getEngine(), blockWidth,
+        this->player = new Player(this->getEngine(), blockWidth,
             blockHeight, playerCol * blockWidth + blockWidth/2,
             100 + playerRow * blockHeight + blockHeight/2, &this->grid, box, levelUp);
         
@@ -101,10 +104,38 @@ public:
         this->getEngine()->destroyOldObjects(true);
         this->getEngine()->createObjectArray(2);
 
-        this->getEngine()->storeObjectInArray(0, player);
+        this->getEngine()->storeObjectInArray(0, this->player);
         this->getEngine()->storeObjectInArray(1, box);
 
+        this->spawnEnemy();
+
         return 1;
+    }
+
+    void spawnEnemy() {
+        if (this->getRandomEnemyPosition() == -1 || player == nullptr) {
+            return;
+        }
+
+        int enemyPosition = this->getRandomEnemyPosition();
+        int enemyRow = enemyPosition/(this->level.width);
+        int enemyCol = enemyPosition%(this->level.width);
+
+        int blockWidth = this->grid.getTileWidth();
+        int blockHeight = this->grid.getTileHeight();
+
+        auto levelReset = [&](){ this->resetLevel(); };
+        auto removeEnemy = [&](DisplayableObject* d) {
+            this->getEngine()->removeDisplayableObject(d);
+            this->spawnEnemy();
+        };
+
+        Enemy* enemy = new Enemy(this->getEngine(), blockWidth,
+            blockHeight, enemyCol * blockWidth + blockWidth/2,
+            100 + enemyRow * blockHeight + blockHeight/2, &this->grid, this->player,
+            levelReset, removeEnemy);
+
+        this->getEngine()->appendObjectToArray(enemy);
     }
 
     void drawStringsOnTop() override {
@@ -139,23 +170,27 @@ public:
                 this->stateTransition(std::make_unique<StartState>());
                 break;
             case SDLK_r: // reload level
-                if (PlayScreen::CURRENT_LIVES > 1) {
-                    PlayScreen::CURRENT_LIVES--;
-                    this->reload();
-                } else {
-                    PlayScreen::CURRENT_LEVEL = 1;
-                    PlayScreen::CURRENT_SCORE = 0;
-                    PlayScreen::CURRENT_LIVES = PlayScreen::N_LIVES;
-                    this->reload();
-                    this->stateTransition(std::make_unique<GameOverState>());
-                    this->highscores.addHighscore(this->playerData.getPlayerName(), PlayScreen::CURRENT_SCORE);
-                }
+                this->resetLevel();
                 break;
             case SDLK_p: // save game
                 this->playerData.setPlayerLevel(PlayScreen::CURRENT_LEVEL);
                 this->playerData.setPlayerScore(PlayScreen::CURRENT_SCORE);
                 this->playerData.setPlayerLives(PlayScreen::CURRENT_LIVES);
                 break;
+        }
+    }
+
+    void resetLevel() {
+        if (PlayScreen::CURRENT_LIVES > 1) {
+            PlayScreen::CURRENT_LIVES--;
+            this->reload();
+        } else {
+            PlayScreen::CURRENT_LEVEL = 1;
+            PlayScreen::CURRENT_SCORE = 0;
+            PlayScreen::CURRENT_LIVES = PlayScreen::N_LIVES;
+            this->reload();
+            this->stateTransition(std::make_unique<GameOverState>());
+            this->highscores.addHighscore(this->playerData.getPlayerName(), PlayScreen::CURRENT_SCORE);
         }
     }
 
@@ -177,6 +212,7 @@ private:
     GameGrid grid;
     Highscores highscores;
     PlayerData playerData;
+    Player* player;
     int lives;
     int score;
     int levelNumber;
@@ -189,6 +225,21 @@ private:
         }
 
         return -1; // error
+    }
+
+    int getRandomEnemyPosition() {
+        std::vector<int> positions;
+        for (int i = 0; i < this->level.height * this->level.width; i++) {
+            if (this->level.map[i] == 'E') {
+                positions.push_back(i);
+            }
+        }
+
+        if (positions.size() == 0) {
+            return -1; // error
+        }
+
+        return positions[(rand() * 100) % positions.size()];
     }
 
     int getBoxPosition() {

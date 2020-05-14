@@ -11,6 +11,7 @@
 
 #include "../BaseEngine.h"
 #include "Domain/GameLevels.h"
+#include "../MusicLib/MusicLib.h"
 
 #include "States/BaseState.h"
 #include "States/LoadingState.h"
@@ -36,7 +37,8 @@ public:
     using ScreenPointer = std::unique_ptr<GameScreen>;
 
     Game(std::string gameLevelsFileLocation, std::string playerDataFileLocation,
-         std::string highscoreFileLocation, size_t sWidth, size_t sHeight)
+         std::string highscoreFileLocation, std::string musicFileLocation,
+         size_t sWidth, size_t sHeight)
     : gameState(std::make_unique<LoadingState>()),
       screenWidth(sWidth), screenHeight(sHeight) {
         StateTransition transitionFunction = [&](StatePointer&& sp) {
@@ -66,7 +68,13 @@ public:
         this->screens.insert({GameScreens::VICTORY, std::move(victoryScreen)});
 
         this->gameState = std::make_unique<LoadingState>();
+
+        std::thread musicPlayer([](std::string file){
+            MusicLib::playMusic(file);
+        }, musicFileLocation);
+        musicPlayer.detach();
     }
+
 	~Game() {}
 
 	void virtSetupBackgroundBuffer() override {

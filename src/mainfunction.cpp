@@ -30,7 +30,12 @@ int doProgram(int argc, char *argv[])
 				  << std::endl;
 		return 1;
 	}
-	PushDaBox::Game oMain(argv[1], argv[2], argv[3], BaseScreenWidth, BaseScreenHeight);
+	if (argc < 5) {
+		std::cout << "Missing audio file location. Need to be passed in as the 5th argument to the program"
+				  << std::endl;
+		return 1;
+	}
+	PushDaBox::Game oMain(argv[1], argv[2], argv[3], argv[4], BaseScreenWidth, BaseScreenHeight);
 
 	char buf[1024];
 	sprintf(buf, "C++ Coursework Framework Program : Size %d x %d", BaseScreenWidth, BaseScreenHeight);
