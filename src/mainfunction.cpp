@@ -15,27 +15,11 @@ const int BaseScreenHeight = 800;
 int doProgram(int argc, char *argv[])
 { 
 	int iResult = 0;
-	if (argc < 2) {
-		std::cout << "Missing levels file locaiton. Need to be passed in as the 2nd argument to the program"
-				  << std::endl;
-		return 1;
-	}
-	if (argc < 3) {
-		std::cout << "Missing player data file location. Need to be passed in as the 3rd argument to the program"
-				  << std::endl;
-		return 1;
-	}
-	if (argc < 4) {
-		std::cout << "Missing highscore file location. Need to be passed in as the 4th argument to the program"
-				  << std::endl;
-		return 1;
-	}
-	if (argc < 5) {
-		std::cout << "Missing audio file location. Need to be passed in as the 5th argument to the program"
-				  << std::endl;
-		return 1;
-	}
-	PushDaBox::Game oMain(argv[1], argv[2], argv[3], argv[4], BaseScreenWidth, BaseScreenHeight);
+	PushDaBox::Game oMain("src/PushDaBox/GameLevels.json",
+						  "src/PushDaBox/PlayerData.json",
+						  "src/PushDaBox/Highscores.json",
+						  "assets/audio/music.wav",
+						  BaseScreenWidth, BaseScreenHeight);
 
 	char buf[1024];
 	sprintf(buf, "C++ Coursework Framework Program : Size %d x %d", BaseScreenWidth, BaseScreenHeight);
