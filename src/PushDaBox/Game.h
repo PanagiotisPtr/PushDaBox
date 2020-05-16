@@ -52,11 +52,8 @@ public:
             this->redrawDisplay();
         };
 
-        ScreenPointer loadingScreen = std::make_unique<LoadingScreen>(this, transitionFunction);
-        this->screens.insert({GameScreens::LOADING, std::move(loadingScreen)});
-        this->gameState = std::make_unique<LoadingState>();
-
         ScreenPointer startScreen = std::make_unique<StartScreen>(this, transitionFunction, playerDataFileLocation);
+        ScreenPointer loadingScreen = std::make_unique<LoadingScreen>(this, transitionFunction);
         ScreenPointer highscoreScreen = std::make_unique<HighscoreScreen>(this, transitionFunction, highscoreFileLocation);
         ScreenPointer playScreen = std::make_unique<PlayScreen>(this, transitionFunction, gameLevelsFileLocation,
                                                                 highscoreFileLocation, playerDataFileLocation);
@@ -64,10 +61,13 @@ public:
         ScreenPointer victoryScreen = std::make_unique<VictoryScreen>(this, transitionFunction);
 
         this->screens.insert({GameScreens::START, std::move(startScreen)});
+        this->screens.insert({GameScreens::LOADING, std::move(loadingScreen)});
         this->screens.insert({GameScreens::HIGHSCORE, std::move(highscoreScreen)});
         this->screens.insert({GameScreens::RUNNING, std::move(playScreen)});
         this->screens.insert({GameScreens::GAMEOVER, std::move(gameOverScreen)});
         this->screens.insert({GameScreens::VICTORY, std::move(victoryScreen)});
+
+        this->gameState = std::make_unique<LoadingState>();
 
         std::thread musicPlayer([](std::string file){
             MusicLib::playMusic(file);
