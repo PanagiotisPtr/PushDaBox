@@ -26,6 +26,9 @@ public:
 		if (getMapValue(mx, my) == 0xff00ff) {
 			return; // enemy spawn locations are hidden
 		}
+		if (getMapValue(mx, my) == 0x010101) {
+			return; // easter egg
+		}
 		s->drawRectangle(
 			sx,
 			sy, 
