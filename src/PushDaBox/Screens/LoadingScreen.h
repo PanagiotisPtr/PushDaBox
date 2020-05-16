@@ -21,6 +21,9 @@ public:
 
     int initialiseObjects() override {
         std::thread([&](){
+            // Everything loads extremely quickly so you never get to see
+            // the loading screen. I added a time dealy so that you can 
+            // see this screen in the demo
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             this->stateTransition(std::make_unique<StartState>());
         }).detach();

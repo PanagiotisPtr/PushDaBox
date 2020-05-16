@@ -12,7 +12,7 @@ struct AudioData {
 
 bool keepPlayingAudio = true;
 
-void audioCallback(void* userData, Uint8* stream, int streamLength) {
+void callback(void* userData, Uint8* stream, int streamLength) {
     AudioData* audio = (AudioData*)userData;
 
     if (audio->length == 0 || keepPlayingAudio == false) {
@@ -23,7 +23,9 @@ void audioCallback(void* userData, Uint8* stream, int streamLength) {
 
     Uint32 length = (Uint32)streamLength;
 
-    length = (length > audio->length ? audio->length : length);
+    if (length > audio->length) {
+        length = audio->length;
+    }
 
     SDL_memcpy(stream, audio->position, length);
 
@@ -44,19 +46,19 @@ void playMusic(std::string file) {
     audio.position = wavStart;
     audio.length = wavLength;
 
-    wavSpec.callback = audioCallback;
+    wavSpec.callback = callback;
     wavSpec.userdata = &audio;
 
-    SDL_AudioDeviceID audioDevice;
-    audioDevice = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+    SDL_AudioDeviceID device;
+    device = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
 
-    SDL_PauseAudioDevice(audioDevice, 0);
+    SDL_PauseAudioDevice(device, 0);
 
     while (audio.length > 0) {
         SDL_Delay(100);
     }
 
-    SDL_CloseAudioDevice(audioDevice);
+    SDL_CloseAudioDevice(device);
     SDL_FreeWAV(wavStart);
     SDL_Quit();
 }

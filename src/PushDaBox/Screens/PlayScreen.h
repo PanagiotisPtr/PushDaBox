@@ -41,7 +41,7 @@ public:
     PlayScreen(BaseEngine* e, StateTransition t, std::string gameLevelsFileLocation,
                std::string highscoreFileLocation, std::string playerDataFileLocation)
     : GameScreen(e, t), levels(gameLevelsFileLocation), level(levels.getLevel(PlayScreen::CURRENT_LEVEL)),
-      grid(MAP_HEIGHT/level.height, MAP_WIDTH/level.width), levelNumber(PlayScreen::CURRENT_LEVEL),
+      grid(e, MAP_HEIGHT/level.height, MAP_WIDTH/level.width), levelNumber(PlayScreen::CURRENT_LEVEL),
       score(0), lives(N_LIVES), highscores(highscoreFileLocation), playerData(playerDataFileLocation),
         player(nullptr) {
     }
@@ -201,7 +201,7 @@ public:
             this->highscores.addHighscore(this->playerData.getPlayerName(), PlayScreen::CURRENT_SCORE);
         } else {
             this->level = this->levels.getLevel(PlayScreen::CURRENT_LEVEL);
-            this->grid = GameGrid(MAP_HEIGHT/level.height, MAP_WIDTH/level.width);
+            this->grid = GameGrid(this->getEngine(), MAP_HEIGHT/level.height, MAP_WIDTH/level.width);
             this->levelNumber = PlayScreen::CURRENT_LEVEL;
             this->stateTransition(std::make_unique<RunningState>());
         }

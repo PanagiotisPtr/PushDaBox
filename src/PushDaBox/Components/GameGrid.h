@@ -9,20 +9,32 @@ namespace PushDaBox {
 
 class GameGrid : public TileManager {
 public:
-	GameGrid(int tileHeight, int tileWidth) : TileManager(tileHeight, tileWidth) {
+	GameGrid(BaseEngine* e, int tileHeight, int tileWidth)
+	: TileManager(tileHeight, tileWidth), image(e->loadImage("assets/Star.png", false)) {
+		this->image = this->image.resizeTo(getTileWidth(), getTileHeight());
 	}
 
 	~GameGrid() {
 	}
 
 	virtual void virtDrawTileAt(BaseEngine* e, DrawingSurface* s, int mx, int my, int sx, int sy) const override {
-        s->drawRectangle(
+        if (getMapValue(mx,my) == 0x00ff00) {
+			std::cout << sx << " " << sy << " " << getTileWidth() << " " << getTileHeight() << std::endl;
+			this->image.renderImage(s, 0, 0, sx, sy, getTileWidth(), getTileHeight());
+			return;
+		}
+		if (getMapValue(mx, my) == 0xff00ff) {
+			return; // enemy spawn locations are hidden
+		}
+		s->drawRectangle(
 			sx,
 			sy, 
 			sx + getTileWidth() - 1,
 			sy + getTileHeight() - 1,
 			getMapValue(mx,my));
 	}
+private:
+	SimpleImage image;
 };
 
 } // namespace PushDaBox
