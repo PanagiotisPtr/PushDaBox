@@ -60,6 +60,8 @@ public:
                 this->grid.setMapValue(col, row, 0xff00ff);
             } else if (this->level.map[i] == 'G') {
                 this->grid.setMapValue(col, row, 0x00ff00);
+            } else if (this->level.map[i] == '*') {
+                this->grid.setMapValue(col, row, 0x010101); // easter egg
             } else {
                 this->grid.setMapValue(col, row, 0x000000);
             }
