@@ -24,7 +24,7 @@ public:
             // Everything loads extremely quickly so you never get to see
             // the loading screen. I added a time dealy so that you can 
             // see this screen in the demo
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             this->stateTransition(std::make_unique<StartState>());
         }).detach();
 
