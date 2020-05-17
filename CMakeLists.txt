@@ -25,13 +25,13 @@ src/TileManager.cpp
 src/SimpleImage.cpp
 )
 
-add_executable(SDL2_App ${SOURCE_FILES})
-target_link_libraries(SDL2_App ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARY} ${SDL2_IMAGE_LIBRARY})
+add_executable(PushDaBox ${SOURCE_FILES})
+target_link_libraries(PushDaBox ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARY} ${SDL2_IMAGE_LIBRARY})
 
-add_custom_command(TARGET SDL2_App PRE_BUILD
+add_custom_command(TARGET PushDaBox PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${G52CPP_SOURCE_DIR}/src/resources ${CMAKE_CURRENT_BINARY_DIR})
 
-add_custom_command(TARGET SDL2_App PRE_BUILD
+add_custom_command(TARGET PushDaBox PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${G52CPP_SOURCE_DIR}/JsonFileTemplates ${G52CPP_SOURCE_DIR}/src/PushDaBox)
