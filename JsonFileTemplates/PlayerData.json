@@ -1,0 +1,10 @@
+{
+  "progress": {
+    "level": 1,
+    "score": 0,
+    "lives": 3
+  },
+  "player": {
+    "name": "player"
+  }
+}
