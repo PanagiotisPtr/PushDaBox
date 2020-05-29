@@ -17,5 +17,5 @@ https://youtu.be/0l6k7ZXmyfA
 - I also have implementations of shortest paths algorithms.
 - The code design is pretty neat with Domain logic abstracted away and config files used to store temporary data.
 
-### important note
+### note
 The code I have written mostly belongs in src/PushDaBox, src/MusicLib, src/JsonLib any other C++ code was provided by the University of Nottingham as this was a submission for a university project.
